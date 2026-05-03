@@ -328,14 +328,15 @@ export default function Timeline() {
             </div>
 
             {/* Table Header Row */}
-            <div style={{ display: 'flex', position: 'sticky', top: 0, zIndex: 100, background: '#181822', borderBottom: '1px solid rgba(255,255,255,0.05)', height: ROW_HEIGHT }}>
+            <div style={{ display: 'flex', position: 'sticky', top: 0, zIndex: 100, background: '#181822', borderBottom: '1px solid rgba(255,255,255,0.05)', height: ROW_HEIGHT * 1.2 }}>
 
               <div style={{
                 position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 110,
                 background: '#181822', paddingLeft: 24, paddingRight: 24, fontSize: 11, fontWeight: 700, color: 'var(--text-2)',
-                letterSpacing: 1, textTransform: 'uppercase', borderRight: '1px solid rgba(255,255,255,0.05)',
-                display: 'flex', alignItems: 'center', boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
+                letterSpacing: 0.8, textTransform: 'uppercase', borderRight: '1px solid rgba(255,255,255,0.05)',
+                display: 'flex', alignItems: 'center', boxShadow: '2px 0 10px rgba(0,0,0,0.1)', gap: 12
               }}>
+                <div style={{ width: 3, height: 20, background: 'rgba(255,255,255,0.15)', borderRadius: 1 }} />
                 Task Details
               </div>
 
@@ -346,7 +347,7 @@ export default function Timeline() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     borderRight: '1px solid rgba(255,255,255,0.02)',
                     background: c.isCurrent ? 'rgba(99,102,241,0.03)' : 'transparent',
-                    fontSize: 10, fontWeight: 700, color: c.isCurrent ? '#a78bfa' : 'var(--text-2)', letterSpacing: 1,
+                    fontSize: 10, fontWeight: 700, color: c.isCurrent ? '#a78bfa' : 'var(--text-2)', letterSpacing: 0.8,
                     position: 'relative',
                     padding: '0 4px'
                   }}>
