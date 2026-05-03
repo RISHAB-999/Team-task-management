@@ -21,6 +21,7 @@ export default function Teams({ toast }) {
   
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [memberSearch, setMemberSearch] = useState('');
+  const [currentMemberSearch, setCurrentMemberSearch] = useState('');
 
   useEffect(() => {
     fetchTeams();
@@ -262,14 +263,28 @@ export default function Teams({ toast }) {
 
       {/* MANAGE MEMBERS MODAL */}
       {showManageModal && (
-        <Modal title={`Manage Team: ${showManageModal.team.name}`} onClose={() => { setShowManageModal(null); setSelectedUserIds([]); setMemberSearch(''); }}>
+        <Modal title={`Manage Team: ${showManageModal.team.name}`} onClose={() => { setShowManageModal(null); setSelectedUserIds([]); setMemberSearch(''); setCurrentMemberSearch(''); }}>
           <div style={{ marginBottom: 24 }}>
             <h4 style={{ fontSize:13, marginBottom:12, color: 'var(--text-2)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Current Members ({showManageModal.members.length})</h4>
+            
+            {/* Search bar for current members */}
+            {showManageModal.members.length > 0 && (
+              <input 
+                type="text" 
+                placeholder="Search current members..." 
+                value={currentMemberSearch}
+                onChange={e => setCurrentMemberSearch(e.target.value)}
+                style={{ marginBottom: 12, fontSize: 13, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', width: '100%', color: '#fff' }}
+              />
+            )}
+
             {showManageModal.members.length === 0 ? (
               <div style={{ fontSize:13, color:'var(--text-2)', padding: '20px', textAlign: 'center', border: '1px dashed var(--border)', borderRadius: 8 }}>No members yet.</div>
             ) : (
               <div style={{ display:'flex', flexDirection:'column', gap:8, maxHeight: 200, overflowY: 'auto', paddingRight: 4 }}>
-                {showManageModal.members.map(m => (
+                {showManageModal.members
+                  .filter(m => m.name.toLowerCase().includes(currentMemberSearch.toLowerCase()) || m.email.toLowerCase().includes(currentMemberSearch.toLowerCase()))
+                  .map(m => (
                   <div key={m.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 12px', background:'rgba(255,255,255,0.02)', borderRadius: 8, border:'1px solid rgba(255,255,255,0.05)' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                       <div className="avatar" style={{ width:28, height:28, fontSize:11, background: m.avatar_url ? `url('${m.avatar_url}')` : m.avatar_color, backgroundSize: 'cover', backgroundPosition: 'center' }}>
