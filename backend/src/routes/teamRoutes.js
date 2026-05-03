@@ -1,0 +1,10 @@
+const r = require('express').Router();
+const c = require('../controllers/teamController');
+const { authenticate } = require('../middleware/authMiddleware');
+r.get('/',    authenticate, c.getAll);
+r.post('/',   authenticate, c.create);
+r.get('/:id', authenticate, c.getOne);
+r.delete('/:id', authenticate, c.remove);
+r.post('/:id/members',               authenticate, c.addMember);
+r.delete('/:id/members/:userId',     authenticate, c.removeMember);
+module.exports = r;

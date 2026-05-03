@@ -1,0 +1,12 @@
+const r = require('express').Router();
+const c = require('../controllers/taskController');
+const { authenticate } = require('../middleware/authMiddleware');
+const { requireProjectMember, requireProjectAdmin } = require('../middleware/roleMiddleware');
+r.get('/dashboard/stats',       authenticate, c.getDashboardStats);
+r.get('/timeline',              authenticate, c.getTimelineTasks);
+r.get('/my',                    authenticate, c.getMyTasks);
+r.get('/project/:projectId',    authenticate, requireProjectMember, c.getProjectTasks);
+r.post('/project/:projectId',   authenticate, requireProjectAdmin,  c.create);
+r.put('/:id',                   authenticate, c.update);
+r.delete('/:id',                authenticate, c.remove);
+module.exports = r;

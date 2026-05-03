@@ -1,0 +1,12 @@
+const r = require('express').Router();
+const c = require('../controllers/projectController');
+const { authenticate } = require('../middleware/authMiddleware');
+const { requireProjectMember, requireProjectAdmin } = require('../middleware/roleMiddleware');
+r.get('/',    authenticate, c.getAll);
+r.post('/',   authenticate, c.create);
+r.get('/:id',             authenticate, requireProjectMember, c.getOne);
+r.put('/:id',             authenticate, requireProjectAdmin,  c.update);
+r.delete('/:id',          authenticate, requireProjectAdmin,  c.remove);
+r.post('/:id/members',    authenticate, requireProjectAdmin,  c.addMember);
+r.delete('/:id/members/:userId', authenticate, requireProjectAdmin, c.removeMember);
+module.exports = r;
