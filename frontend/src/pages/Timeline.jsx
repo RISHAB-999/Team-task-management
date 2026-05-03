@@ -403,7 +403,7 @@ export default function Timeline() {
                             paddingLeft: 24, paddingRight: 24, display: 'flex', alignItems: 'center', gap: 12,
                             boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
                           }}>
-                            <div style={{ width: 3, height: 24, borderRadius: 2, background: phaseColor, opacity: 0.6, flexShrink: 0 }} />
+                            <div style={{ width: 3, height: ROW_HEIGHT, borderRadius: 2, background: phaseColor, opacity: 1, flexShrink: 0, position: 'absolute', left: 0, top: 0, bottom: 0 }} />
                             <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {task.title}
                             </div>

@@ -222,7 +222,10 @@ export default function Dashboard() {
       
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 40 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>Workspace Dashboard</h1>
+        <div>
+          <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>Welcome, {user?.name || 'User'}</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-2)', margin: '8px 0 0 0' }}>Workspace Dashboard</p>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <div style={{ display: 'flex', gap: 20, color: 'var(--text-2)', fontSize: 14, fontWeight: 500 }}>
             <span style={{ color: 'var(--text)', borderBottom: '2px solid var(--accent)', paddingBottom: 4, cursor: 'pointer' }} onClick={() => navigate('/')}>Tasks</span>
