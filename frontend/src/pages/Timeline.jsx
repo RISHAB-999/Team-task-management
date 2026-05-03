@@ -308,20 +308,22 @@ export default function Timeline() {
           <div style={{ width: LEFT_PANEL_WIDTH + totalTimelineWidth, display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
 
             {/* FULL HEIGHT VERTICAL GRID LAYER */}
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: LEFT_PANEL_WIDTH, right: 0, display: 'flex', pointerEvents: 'none', zIndex: 5 }}>
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: LEFT_PANEL_WIDTH, right: 0, display: 'flex', pointerEvents: 'none', zIndex: 5, minHeight: '100%' }}>
               {columns.map((c, i) => (
                 <div key={i} style={{
                   width: c.width, minWidth: c.width, flexShrink: 0,
                   borderRight: '1px solid rgba(255,255,255,0.02)',
                   background: c.isCurrent ? 'rgba(99,102,241,0.02)' : 'transparent',
-                  position: 'relative'
+                  position: 'relative',
+                  minHeight: '100%'
                 }}>
                   {c.isCurrent && (
                     <div style={{ 
                       position: 'absolute', left: '50%', top: 0, bottom: 0, width: 2, 
                       background: 'rgba(167, 139, 250, 0.6)', 
                       boxShadow: '0 0 12px rgba(167, 139, 250, 0.8)', 
-                      pointerEvents: 'none'
+                      pointerEvents: 'none', 
+                      transform: 'translateX(-50%)'
                     }} />
                   )}
                 </div>
