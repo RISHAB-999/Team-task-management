@@ -20,7 +20,14 @@ exports.getAll = async (req, res) => {
 
   const { data, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
-  res.json({ teams: data || [] });
+  
+  // Format teams with member_count
+  const teams = (data || []).map(team => ({
+    ...team,
+    member_count: team.team_members?.[0]?.count || 0
+  }));
+  
+  res.json({ teams });
 };
 
 exports.create = async (req, res) => {
