@@ -1,4 +1,3 @@
-# ⚠️ Run this in Supabase Dashboard → SQL Editor → New Query
 
 -- USERS TABLE
 CREATE TABLE IF NOT EXISTS users (
