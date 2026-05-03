@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import { COLORS } from '../utils/colors';
 
-function ProjectCard({ project, onClick }) {
+function ProjectCard({ project, onClick, onDelete, isAdmin }) {
   const pct = project.task_count > 0 ? Math.round((project.done_count / project.task_count) * 100) : 0;
   const avatars = project.members?.slice(0, 4) || [];
   const extraMembers = Math.max(0, (project.member_count || 0) - avatars.length);
@@ -35,24 +35,62 @@ function ProjectCard({ project, onClick }) {
         e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      {/* Header: Dot + Title + Status */}
+      {/* Header: Dot + Title + Status + Delete Button */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: project.color || 'var(--primary)', boxShadow: `0 0 10px ${project.color || 'var(--primary)'}` }} />
           <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', letterSpacing: '-0.3px' }}>{project.name}</div>
         </div>
-        <div style={{
-          background: 'rgba(16, 185, 129, 0.1)',
-          color: '#10b981',
-          padding: '4px 10px',
-          borderRadius: 8,
-          fontSize: 10,
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          border: '1px solid rgba(16, 185, 129, 0.2)'
-        }}>
-          {project.status || 'Active'}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            background: 'rgba(16, 185, 129, 0.1)',
+            color: '#10b981',
+            padding: '4px 10px',
+            borderRadius: 8,
+            fontSize: 10,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            whiteSpace: 'nowrap'
+          }}>
+            {project.status || 'Active'}
+          </div>
+          {isAdmin && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(project);
+              }}
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                color: '#ef4444',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: 8,
+                padding: '4px 8px',
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 32,
+                height: 32
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                e.currentTarget.style.color = '#ff6b6b';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                e.currentTarget.style.color = '#ef4444';
+              }}
+              title="Delete project"
+            >
+              🗑️
+            </button>
+          )}
         </div>
       </div>
 
@@ -148,6 +186,9 @@ export default function Projects({ toast }) {
   const [form, setForm] = useState({ name:'', description:'', color: COLORS.avatarColors[0], team_id:'' });
   const [saving, setSaving] = useState(false);
   const [availableTeams, setAvailableTeams] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     api.get('/projects').then(r => { setProjects(r.data.projects); setLoading(false); }).catch(() => setLoading(false));
@@ -173,6 +214,25 @@ export default function Projects({ toast }) {
     } finally { setSaving(false); }
   }
 
+  async function handleDelete() {
+    if (!projectToDelete) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/projects/${projectToDelete.id}`);
+      setProjects(p => p.filter(proj => proj.id !== projectToDelete.id));
+      setShowDeleteConfirm(false);
+      setProjectToDelete(null);
+      toast?.success('Project deleted successfully!');
+    } catch (err) {
+      toast?.error(err.response?.data?.error || 'Failed to delete project');
+    } finally { setDeleting(false); }
+  }
+
+  const openDeleteConfirm = (project) => {
+    setProjectToDelete(project);
+    setShowDeleteConfirm(true);
+  };
+
   if (loading) return <div className="page"><div style={{color:'var(--text-2)'}}>Loading…</div></div>;
 
   return (
@@ -192,7 +252,15 @@ export default function Projects({ toast }) {
         </div>
       ) : (
         <div className="projects-grid">
-          {projects.map(p => <ProjectCard key={p.id} project={p} onClick={() => navigate(`/projects/${p.id}`)} />)}
+          {projects.map(p => (
+            <ProjectCard 
+              key={p.id} 
+              project={p} 
+              onClick={() => navigate(`/projects/${p.id}`)}
+              onDelete={openDeleteConfirm}
+              isAdmin={user?.role === 'admin'}
+            />
+          ))}
         </div>
       )}
 
@@ -242,6 +310,52 @@ export default function Projects({ toast }) {
           </form>
         </Modal>
       )}
+
+      {showDeleteConfirm && projectToDelete && (
+        <Modal title="Delete Project" onClose={() => { setShowDeleteConfirm(false); setProjectToDelete(null); }}>
+          <div style={{ paddingBottom: 16 }}>
+            <p style={{ color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.6 }}>
+              Are you sure you want to delete <strong style={{ color: '#fff' }}>"{projectToDelete.name}"</strong>?
+            </p>
+            <div style={{ 
+              background: 'rgba(239, 68, 68, 0.1)', 
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: 8,
+              padding: 12,
+              fontSize: 13,
+              color: '#fca5a5',
+              marginBottom: 16
+            }}>
+              ⚠️ This action cannot be undone. All tasks and data associated with this project will be permanently deleted.
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button 
+              type="button" 
+              className="btn btn-ghost" 
+              onClick={() => { setShowDeleteConfirm(false); setProjectToDelete(null); }}
+            >
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              className="btn"
+              onClick={handleDelete}
+              disabled={deleting}
+              style={{
+                background: '#ef4444',
+                color: '#fff',
+                border: 'none',
+                opacity: deleting ? 0.6 : 1,
+                cursor: deleting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {deleting ? <span className="spinner"/> : '🗑️ Delete Project'}
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
+

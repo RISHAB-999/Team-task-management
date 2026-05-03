@@ -332,7 +332,7 @@ export default function Timeline() {
 
               <div style={{
                 position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 110,
-                background: '#181822', paddingLeft: 48, paddingRight: 24, fontSize: 11, fontWeight: 700, color: 'var(--text-2)',
+                background: '#181822', paddingLeft: 24, paddingRight: 24, fontSize: 11, fontWeight: 700, color: 'var(--text-2)',
                 letterSpacing: 1, textTransform: 'uppercase', borderRight: '1px solid rgba(255,255,255,0.05)',
                 display: 'flex', alignItems: 'center', boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
               }}>
@@ -371,7 +371,7 @@ export default function Timeline() {
                       <div style={{ 
                         position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 90, 
                         background: '#111118', borderRight: '1px solid rgba(255,255,255,0.05)',
-                        paddingLeft: 48, paddingRight: 24, fontSize: 11, fontWeight: 800, color: '#818cf8', 
+                        paddingLeft: 24, paddingRight: 24, fontSize: 11, fontWeight: 800, color: '#818cf8', 
                         letterSpacing: 1.2, textTransform: 'uppercase', display: 'flex', alignItems: 'center',
                         boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
                       }}>
@@ -384,19 +384,18 @@ export default function Timeline() {
                     {projectTasks.map((task, idx) => {
                       const style = getTaskStyle(task);
                       return (
-                        <div key={task.id} style={{ display: 'flex', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.02)', height: ROW_HEIGHT }}>
+                          <div key={task.id} style={{ display: 'flex', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.02)', height: ROW_HEIGHT }}>
                           {/* Left side fixed task text */}
                           <div style={{ 
                             position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 90, 
                             background: '#13131a', borderRight: '1px solid rgba(255,255,255,0.05)',
-                            paddingLeft: 24, paddingRight: 24, display: 'flex', alignItems: 'center', gap: 0,
+                            paddingLeft: 24, paddingRight: 24, display: 'flex', alignItems: 'center', gap: 12,
                             boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
                           }}>
-                            <div style={{ width: 24, minWidth: 24, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                              <div style={{ color: 'var(--text-3)', fontSize: 12, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, opacity: 0.3 }}>
-                                <div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div>
-                                <div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div>
-                                <div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:3,height:3,background:'currentColor',borderRadius:'50%'}}></div>
+                            <div style={{ width: 20, minWidth: 20, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                              <div style={{ color: 'var(--text-3)', fontSize: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, opacity: 0.4 }}>
+                                <div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div>
+                                <div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div>
                               </div>
                             </div>
                             <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -407,15 +406,15 @@ export default function Timeline() {
                       <div
                         title={`Assigned to ${task.assignee.name}`}
                         style={{
-                          width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+                          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                           background: task.assignee.avatar_color || '#6366f1',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: '#fff', fontSize: 10, fontWeight: 700,
+                          color: '#fff', fontSize: 11, fontWeight: 700,
                           border: '2px solid #13131a',
                           boxShadow: '0 0 0 1px rgba(255,255,255,0.1)'
                         }}>
                         {task.assignee.avatar_url ? (
-                          <img src={task.assignee.avatar_url} alt={task.assignee.name} style={{ width: '100%', height: '100% ', borderRadius: '50%', objectFit: 'co ver' }} />
+                          <img src={task.assignee.avatar_url} alt={task.assignee.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
                           task.assignee.name.charAt(0).toUpperCase()
                         )}
