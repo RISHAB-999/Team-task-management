@@ -308,7 +308,7 @@ export default function Timeline() {
           <div style={{ width: LEFT_PANEL_WIDTH + totalTimelineWidth, display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
 
             {/* FULL HEIGHT VERTICAL GRID LAYER */}
-            <div style={{ position: 'absolute', top: ROW_HEIGHT, bottom: 0, left: LEFT_PANEL_WIDTH, right: 0, display: 'flex', pointerEvents: 'none', zIndex: 0 }}>
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: LEFT_PANEL_WIDTH, right: 0, display: 'flex', pointerEvents: 'none', zIndex: 5 }}>
               {columns.map((c, i) => (
                 <div key={i} style={{
                   width: c.width, minWidth: c.width, flexShrink: 0,
@@ -318,9 +318,10 @@ export default function Timeline() {
                 }}>
                   {c.isCurrent && (
                     <div style={{ 
-                      position: 'absolute', left: '50%', top: 0, bottom: 0, width: 1, 
-                      background: 'rgba(167, 139, 250, 0.4)', 
-                      boxShadow: '0 0 8px rgba(167, 139, 250, 0.4)' 
+                      position: 'absolute', left: '50%', top: 0, bottom: 0, width: 2, 
+                      background: 'rgba(167, 139, 250, 0.6)', 
+                      boxShadow: '0 0 12px rgba(167, 139, 250, 0.8)', 
+                      pointerEvents: 'none'
                     }} />
                   )}
                 </div>
@@ -373,7 +374,7 @@ export default function Timeline() {
                   const phaseColor = phaseColors[projectIdx % phaseColors.length];
                   
                   return (
-                    <div key={projectName} style={{ display: 'flex', flexDirection: 'column', borderLeft: `4px solid ${phaseColor}`, background: 'rgba(255,255,255,0.005)' }}>
+                    <div key={projectName} style={{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.005)' }}>
                       {/* Project Phase Row */}
                       <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.05)', height: ROW_HEIGHT, background: `rgba(255,255,255,0.02)` }}>
                         <div style={{ 
