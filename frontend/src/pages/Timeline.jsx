@@ -311,7 +311,7 @@ export default function Timeline() {
             <div style={{ position: 'absolute', top: ROW_HEIGHT, bottom: 0, left: LEFT_PANEL_WIDTH, right: 0, display: 'flex', pointerEvents: 'none', zIndex: 0 }}>
               {columns.map((c, i) => (
                 <div key={i} style={{
-                  width: c.width, minWidth: c.width,
+                  width: c.width, minWidth: c.width, flexShrink: 0,
                   borderRight: '1px solid rgba(255,255,255,0.02)',
                   background: c.isCurrent ? 'rgba(99,102,241,0.02)' : 'transparent',
                   position: 'relative'
@@ -339,17 +339,20 @@ export default function Timeline() {
                 Task Details
               </div>
 
-              <div style={{ display: 'flex', position: 'relative', zIndex: 40 }}>
+              <div style={{ display: 'flex', position: 'relative', zIndex: 40, width: totalTimelineWidth }}>
                 {columns.map((c, i) => (
                   <div key={i} style={{
-                    width: c.width, minWidth: c.width,
+                    width: c.width, minWidth: c.width, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     borderRight: '1px solid rgba(255,255,255,0.02)',
                     background: c.isCurrent ? 'rgba(99,102,241,0.03)' : 'transparent',
                     fontSize: 10, fontWeight: 700, color: c.isCurrent ? '#a78bfa' : 'var(--text-2)', letterSpacing: 1,
-                    position: 'relative'
+                    position: 'relative',
+                    padding: '0 4px'
                   }}>
-                    {c.label} {c.isCurrent && viewMode !== 'days' && <span style={{ marginLeft: 4 }}>(NOW )</span>}
+                    <div style={{ textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {c.label} {c.isCurrent && viewMode !== 'days' && <span style={{ marginLeft: 2 }}>(NOW )</span>}
+                    </div>
                     {/* The top glowing dot for NOW */}
                     {c.isCurrent && (
                       <div style={{ position: 'absolute', bottom: -4, left: '50%', transform: 'translateX(-50%)', width: 6, height: 6, borderRadius: '50%', background: '#a78bfa', boxShadow: '0 0 10px 2px rgba(167, 139, 250, 0.6)', zIndex: 50 }} />
