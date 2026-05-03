@@ -12,9 +12,12 @@ export default function Teams({ toast }) {
   // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showManageModal, setShowManageModal] = useState(null); // holds the team object
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState(null);
   
   const [form, setForm]       = useState({ name:'', description:'', members: [] });
   const [saving, setSaving]   = useState(false);
+  const [deleting, setDeleting] = useState(false);
   
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [memberSearch, setMemberSearch] = useState('');
@@ -88,6 +91,28 @@ export default function Teams({ toast }) {
     }
   }
 
+  async function openDeleteConfirm(team) {
+    setTeamToDelete(team);
+    setShowDeleteConfirm(true);
+  }
+
+  async function handleDeleteTeam() {
+    if (!teamToDelete) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/teams/${teamToDelete.id}`);
+      setTeams(t => t.filter(team => team.id !== teamToDelete.id));
+      setShowDeleteConfirm(false);
+      setTeamToDelete(null);
+      if (showManageModal?.team?.id === teamToDelete.id) {
+        setShowManageModal(null);
+      }
+      toast?.success('Team deleted successfully!');
+    } catch (err) {
+      toast?.error(err.response?.data?.error || 'Failed to delete team');
+    } finally { setDeleting(false); }
+  }
+
   const toggleUserSelection = (userId) => {
     setSelectedUserIds(prev => 
       prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
@@ -114,12 +139,50 @@ export default function Teams({ toast }) {
       ) : (
         <div className="projects-grid">
           {teams.map(team => (
-            <div key={team.id} className="card" style={{ cursor: user?.role === 'admin' ? 'pointer' : 'default' }} onClick={() => user?.role === 'admin' && openManage(team)}>
+            <div key={team.id} className="card" style={{ cursor: user?.role === 'admin' ? 'pointer' : 'default', position: 'relative' }} onClick={() => user?.role === 'admin' && openManage(team)}>
+              {user?.role === 'admin' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openDeleteConfirm(team);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: 8,
+                    padding: '4px 8px',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.color = '#ff6b6b';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.color = '#ef4444';
+                  }}
+                  title="Delete team"
+                >
+                  🗑️
+                </button>
+              )}
               <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
                 <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,var(--primary),var(--accent))', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>👥</div>
                 <div>
                   <div style={{ fontWeight:600 }}>{team.name}</div>
-                  <div style={{ fontSize:11, color:'var(--text-2)' }}>{team.team_members?.[0]?.count || 0} members</div>
+                  <div style={{ fontSize:11, color:'var(--text-2)' }}>{team.member_count || 0} members</div>
                 </div>
               </div>
               {team.description && <div style={{ fontSize:13, color:'var(--text-2)' }}>{team.description}</div>}
@@ -294,6 +357,52 @@ export default function Teams({ toast }) {
                 {saving ? <span className="spinner"/> : `Add ${selectedUserIds.length} Member${selectedUserIds.length !== 1 ? 's' : ''}`}
               </button>
             </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteConfirm && teamToDelete && (
+        <Modal title="Delete Team" onClose={() => { setShowDeleteConfirm(false); setTeamToDelete(null); }}>
+          <div style={{ paddingBottom: 16 }}>
+            <p style={{ color: 'var(--text-2)', marginBottom: 16, lineHeight: 1.6 }}>
+              Are you sure you want to delete <strong style={{ color: '#fff' }}>"{teamToDelete.name}"</strong>?
+            </p>
+            <div style={{ 
+              background: 'rgba(239, 68, 68, 0.1)', 
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: 8,
+              padding: 12,
+              fontSize: 13,
+              color: '#fca5a5',
+              marginBottom: 16
+            }}>
+              ⚠️ This action cannot be undone. All team data and associated projects will be permanently deleted.
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button 
+              type="button" 
+              className="btn btn-ghost" 
+              onClick={() => { setShowDeleteConfirm(false); setTeamToDelete(null); }}
+            >
+              Cancel
+            </button>
+            <button 
+              type="button" 
+              className="btn"
+              onClick={handleDeleteTeam}
+              disabled={deleting}
+              style={{
+                background: '#ef4444',
+                color: '#fff',
+                border: 'none',
+                opacity: deleting ? 0.6 : 1,
+                cursor: deleting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {deleting ? <span className="spinner"/> : '🗑️ Delete Team'}
+            </button>
           </div>
         </Modal>
       )}
