@@ -183,12 +183,14 @@ export default function Projects({ toast }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name:'', description:'', color: COLORS.avatarColors[0], team_id:'' });
+  const [form, setForm] = useState({ name:'', description:'', color: COLORS.avatarColors[0], team_ids:[] });
   const [saving, setSaving] = useState(false);
   const [availableTeams, setAvailableTeams] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showTeamModal, setShowTeamModal] = useState(false);
+  const [teamSearch, setTeamSearch] = useState('');
 
   useEffect(() => {
     api.get('/projects').then(r => { setProjects(r.data.projects); setLoading(false); }).catch(() => setLoading(false));
@@ -203,11 +205,15 @@ export default function Projects({ toast }) {
     setSaving(true);
     try {
       const payload = { ...form };
-      if (!payload.team_id) delete payload.team_id;
+      // Only send team_ids if there are teams selected (we'll handle multiple teams on backend)
+      if (payload.team_ids && payload.team_ids.length > 0) {
+        payload.team_id = payload.team_ids[0]; // For now, backend expects single team_id
+      }
+      delete payload.team_ids;
       const { data } = await api.post('/projects', payload);
       setProjects(p => [data.project, ...p]);
       setShowModal(false);
-      setForm({ name:'', description:'', color: COLORS.avatarColors[0], team_id:'' });
+      setForm({ name:'', description:'', color: COLORS.avatarColors[0], team_ids:[] });
       toast?.success('Project created!');
     } catch (err) {
       toast?.error(err.response?.data?.error || 'Failed to create project');
@@ -280,13 +286,79 @@ export default function Projects({ toast }) {
             
             {user?.role === 'admin' && availableTeams.length > 0 && (
               <div className="form-group">
-                <label>Assign to Team <small style={{color:'var(--text-3)'}}>(Optional)</small></label>
-                <select value={form.team_id} onChange={e => setForm(p => ({...p, team_id:e.target.value}))}>
-                  <option value="">No Team (Standalone Project)</option>
-                  {availableTeams.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+                <label>Assign to Teams <small style={{color:'var(--text-3)'}}>(Optional)</small></label>
+                <button 
+                  type="button"
+                  onClick={() => setShowTeamModal(true)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    borderRadius: 8,
+                    color: 'var(--text)',
+                    fontSize: 14,
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.15)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+                  }}
+                >
+                  <span>
+                    {form.team_ids.length === 0 
+                      ? 'Select Teams...' 
+                      : `${form.team_ids.length} team${form.team_ids.length !== 1 ? 's' : ''} selected`}
+                  </span>
+                  <span style={{ fontSize: 16 }}>▼</span>
+                </button>
+                {form.team_ids.length > 0 && (
+                  <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {form.team_ids.map(teamId => {
+                      const team = availableTeams.find(t => t.id === teamId);
+                      return team ? (
+                        <div key={teamId} style={{
+                          background: 'rgba(99, 102, 241, 0.2)',
+                          border: '1px solid rgba(99, 102, 241, 0.4)',
+                          borderRadius: 6,
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          color: '#a78bfa',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8
+                        }}>
+                          {team.name}
+                          <button
+                            type="button"
+                            onClick={() => setForm(p => ({...p, team_ids: p.team_ids.filter(id => id !== teamId)}))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#a78bfa',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              padding: 0,
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -352,6 +424,122 @@ export default function Projects({ toast }) {
             >
               {deleting ? <span className="spinner"/> : '🗑️ Delete Project'}
             </button>
+          </div>
+        </Modal>
+      )}
+
+      {showTeamModal && user?.role === 'admin' && (
+        <Modal title="Select Teams" onClose={() => { setShowTeamModal(false); setTeamSearch(''); }}>
+          <div style={{ paddingBottom: 16 }}>
+            {/* Search Input */}
+            <div style={{ marginBottom: 20 }}>
+              <input
+                type="text"
+                placeholder="Search teams..."
+                value={teamSearch}
+                onChange={e => setTeamSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: 8,
+                  color: 'var(--text)',
+                  fontSize: 14,
+                  transition: 'all 0.2s'
+                }}
+                onFocus={e => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.12)';
+                  e.target.style.borderColor = 'rgba(99, 102, 241, 0.5)';
+                }}
+                onBlur={e => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.08)';
+                  e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                }}
+              />
+            </div>
+
+            {/* Teams List */}
+            <div style={{
+              maxHeight: 300,
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              marginBottom: 20
+            }}>
+              {availableTeams
+                .filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase()))
+                .map(team => (
+                  <label key={team.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px 14px',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    borderRadius: 8,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.3)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                  }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.team_ids.includes(team.id)}
+                      onChange={e => {
+                        if (e.target.checked) {
+                          setForm(p => ({...p, team_ids: [...p.team_ids, team.id]}));
+                        } else {
+                          setForm(p => ({...p, team_ids: p.team_ids.filter(id => id !== team.id)}));
+                        }
+                      }}
+                      style={{
+                        cursor: 'pointer',
+                        accentColor: 'var(--primary)',
+                        width: 18,
+                        height: 18
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ color: '#fff', fontSize: 14, fontWeight: 500 }}>{team.name}</div>
+                      <div style={{ color: 'var(--text-3)', fontSize: 12, marginTop: 2 }}>
+                        {team.member_count || 0} members
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              {availableTeams.filter(t => t.name.toLowerCase().includes(teamSearch.toLowerCase())).length === 0 && (
+                <div style={{ textAlign: 'center', color: 'var(--text-2)', padding: 20 }}>
+                  No teams found
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="modal-footer">
+              <button 
+                type="button" 
+                className="btn btn-ghost" 
+                onClick={() => { setShowTeamModal(false); setTeamSearch(''); }}
+              >
+                Close
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-primary"
+                onClick={() => { setShowTeamModal(false); setTeamSearch(''); }}
+              >
+                Done
+              </button>
+            </div>
           </div>
         </Modal>
       )}
