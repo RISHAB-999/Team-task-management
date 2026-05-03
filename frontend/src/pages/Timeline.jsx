@@ -364,27 +364,34 @@ export default function Timeline() {
               {Object.keys(projects).length === 0 ? (
                 <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-2)' }}>No tasks found in timeline.</div>
               ) : (
-                Object.entries(projects).map(([projectName, projectTasks]) => (
-                  <div key={projectName}>
-                    {/* Project Phase Row */}
-                    <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.03)', height: ROW_HEIGHT, background: 'rgba(255,255,255,0.01)' }}>
-                      <div style={{ 
-                        position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 90, 
-                        background: '#111118', borderRight: '1px solid rgba(255,255,255,0.05)',
-                        paddingLeft: 24, paddingRight: 24, fontSize: 11, fontWeight: 800, color: '#818cf8', 
-                        letterSpacing: 1.2, textTransform: 'uppercase', display: 'flex', alignItems: 'center',
-                        boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
-                      }}>
-                        {projectName}
-                      </div>
-                      <div style={{ display: 'flex', width: totalTimelineWidth }} />
+                Object.entries(projects).map(([projectName, projectTasks], projectIdx) => {
+                  const phaseColors = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'];
+                  const phaseColor = phaseColors[projectIdx % phaseColors.length];
+                  
+                  return (
+                    <div key={projectName} style={{ display: 'flex', flexDirection: 'column', borderLeft: `4px solid ${phaseColor}`, background: 'rgba(255,255,255,0.005)' }}>
+                      {/* Project Phase Row */}
+                      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.05)', height: ROW_HEIGHT, background: `rgba(255,255,255,0.02)` }}>
+                        <div style={{ 
+                          position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 90, 
+                          background: '#13131a', borderRight: '1px solid rgba(255,255,255,0.05)',
+                          paddingLeft: 24, paddingRight: 24, fontSize: 12, fontWeight: 900, color: phaseColor, 
+                          letterSpacing: 1.5, textTransform: 'uppercase', display: 'flex', alignItems: 'center',
+                          boxShadow: '2px 0 10px rgba(0,0,0,0.15)'
+                        }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: phaseColor, boxShadow: `0 0 8px ${phaseColor}` }}></span>
+                            {projectName}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', width: totalTimelineWidth }} />
                     </div>
 
                     {/* Task Rows */}
                     {projectTasks.map((task, idx) => {
                       const style = getTaskStyle(task);
                       return (
-                          <div key={task.id} style={{ display: 'flex', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.02)', height: ROW_HEIGHT }}>
+                        <div key={task.id} style={{ display: 'flex', position: 'relative', borderBottom: '1px solid rgba(255,255,255,0.02)', height: ROW_HEIGHT, background: idx % 2 === 0 ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.008)' }}>
                           {/* Left side fixed task text */}
                           <div style={{ 
                             position: 'sticky', left: 0, width: LEFT_PANEL_WIDTH, minWidth: LEFT_PANEL_WIDTH, zIndex: 90, 
@@ -392,84 +399,80 @@ export default function Timeline() {
                             paddingLeft: 24, paddingRight: 24, display: 'flex', alignItems: 'center', gap: 12,
                             boxShadow: '2px 0 10px rgba(0,0,0,0.1)'
                           }}>
-                            <div style={{ width: 20, minWidth: 20, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                              <div style={{ color: 'var(--text-3)', fontSize: 10, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, opacity: 0.4 }}>
-                                <div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div>
-                                <div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div><div style={{width:2.5,height:2.5,background:'currentColor',borderRadius:'50%'}}></div>
-                              </div>
-                            </div>
+                            <div style={{ width: 3, height: 24, borderRadius: 2, background: phaseColor, opacity: 0.6, flexShrink: 0 }} />
                             <div style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {task.title}
                             </div>
                             {
-                    task.assignee && (
-                      <div
-                        title={`Assigned to ${task.assignee.name}`}
-                        style={{
-                          width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                          background: task.assignee.avatar_color || '#6366f1',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          color: '#fff', fontSize: 11, fontWeight: 700,
-                          border: '2px solid #13131a',
-                          boxShadow: '0 0 0 1px rgba(255,255,255,0.1)'
-                        }}>
-                        {task.assignee.avatar_url ? (
-                          <img src={task.assignee.avatar_url} alt={task.assignee.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                        ) : (
-                          task.assignee.name.charAt(0).toUpperCase()
-                        )}
-                      </div>
-                    )
-                  }
+                      task.assignee && (
+                        <div
+                          title={`Assigned to ${task.assignee.name}`}
+                          style={{
+                            width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+                            background: task.assignee.avatar_color || '#6366f1',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#fff', fontSize: 11, fontWeight: 700,
+                            border: '2px solid #13131a',
+                            boxShadow: '0 0 0 1px rgba(255,255,255,0.1)'
+                          }}>
+                          {task.assignee.avatar_url ? (
+                            <img src={task.assignee.avatar_url} alt={task.assignee.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            task.assignee.name.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                      )
+                    }
                           </div>
 
-            {/* Right side Task bar */}
-            <div style={{ display: 'flex', position: 'relative', width: totalTimelineWidth }}>
-              {style && (
-                <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 25 }}>
-                  <div className="task-bar" style={{
-                    position: 'absolute',
-                    left: style.left,
-                    width: style.width,
-                    height: 28,
-                    background: style.bgColor,
-                    border: `1px solid ${style.color}`,
-                    borderRadius: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '0 12px',
-                    color: style.textColor || '#fff',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    pointerEvents: 'auto',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                    boxShadow: `0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)`,
-                    }} 
-                                onClick={() => navigate(`/projects/${task.project_id}`)}
-                                onMouseEnter={e => { 
-                                  e.currentTarget.style.boxShadow = `0 0 30px ${style.color}66, 0 8px 30px rgba(0,0,0,0.4)`; 
-                                  e.currentTarget.style.borderColor = style.color;
-                                  e.currentTarget.style.transform = 'scaleY(1.05) translateY(-1px)';
-                                }}
-                                onMouseLeave={e => { 
-                                  e.currentTarget.style.boxShadow = `0 4px 12px rgba(0,0,0,0.2), 0 0 10px ${style.color}33`; 
-                                  e.currentTarget.style.borderColor = `${style.color}55`;
-                                  e.currentTarget.style.transform = 'scaleY(1) translateY(0)';
-                                }}
-                                >
-                  <div style={{ position: 'relative', zIndex: 2, whiteSpace: 'nowrap' }}>
-                    {style.text}
+              {/* Right side Task bar */}
+              <div style={{ display: 'flex', position: 'relative', width: totalTimelineWidth }}>
+                {style && (
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 25 }}>
+                    <div className="task-bar" style={{
+                      position: 'absolute',
+                      left: style.left,
+                      width: style.width,
+                      height: 28,
+                      background: style.bgColor,
+                      border: `2px solid ${style.color}`,
+                      borderRadius: 6,
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 12px',
+                      color: style.textColor || '#fff',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      pointerEvents: 'auto',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                      boxShadow: `0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)`,
+                      }} 
+                                  onClick={() => navigate(`/projects/${task.project_id}`)}
+                                  onMouseEnter={e => { 
+                                    e.currentTarget.style.boxShadow = `0 0 30px ${style.color}66, 0 8px 30px rgba(0,0,0,0.4)`; 
+                                    e.currentTarget.style.borderColor = style.color;
+                                    e.currentTarget.style.transform = 'scaleY(1.05) translateY(-1px)';
+                                  }}
+                                  onMouseLeave={e => { 
+                                    e.currentTarget.style.boxShadow = `0 4px 12px rgba(0,0,0,0.2), 0 0 10px ${style.color}33`; 
+                                    e.currentTarget.style.borderColor = `${style.color}55`;
+                                    e.currentTarget.style.transform = 'scaleY(1) translateY(0)';
+                                  }}
+                                  >
+                    <div style={{ position: 'relative', zIndex: 2, whiteSpace: 'nowrap' }}>
+                      {style.text}
+                    </div>
                   </div>
-                </div>
-                              </div>
-                            )}
+                                </div>
+                              )}
+            </div>
           </div>
-        </div>
-        );
+          );
                     })}
-      </div>
-      ))
+                    </div>
+                  );
+                })
               )}
               {/* Empty space filler for sticky left panel background */}
               <div style={{ flex: 1, display: 'flex' }}>
