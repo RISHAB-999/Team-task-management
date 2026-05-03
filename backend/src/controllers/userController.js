@@ -75,8 +75,26 @@ exports.deleteUser = async (req, res) => {
   if (req.params.id === req.user.id)
     return res.status(400).json({ error: 'Cannot delete your own account' });
 
-  const { error } = await supabase
-    .from('users').delete().eq('id', req.params.id);
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ message: 'User deleted successfully' });
+  const userId = req.params.id;
+
+  try {
+    // Delete all related data first (cascade delete)
+    // 1. Remove user from team members
+    await supabase.from('team_members').delete().eq('user_id', userId);
+    
+    // 2. Remove user from project members
+    await supabase.from('project_members').delete().eq('user_id', userId);
+    
+    // 3. Unassign all tasks assigned to this user (set assignee_id to null)
+    await supabase.from('tasks').update({ assignee_id: null }).eq('assignee_id', userId);
+    
+    // 4. Finally delete the user
+    const { error: deleteError } = await supabase
+      .from('users').delete().eq('id', userId);
+    
+    if (deleteError) return res.status(500).json({ error: deleteError.message });
+    res.json({ message: 'User and all associated data deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message || 'Failed to delete user' });
+  }
 };
