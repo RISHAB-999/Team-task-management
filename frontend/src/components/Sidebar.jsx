@@ -42,7 +42,7 @@ export default function Sidebar({ isOpen, onClose }) {
             </NavLink>
           ))}
           {user?.role === 'admin' && (
-            <NavLink to="/team" onClick={onClose}
+            <NavLink to="/admin" onClick={onClose}
               className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <span style={{ fontSize:15 }}>🛡️</span>Admin
             </NavLink>

@@ -352,7 +352,7 @@ export default function Timeline() {
                     background: c.isCurrent ? 'rgba(99,102,241,0.03)' : 'transparent',
                     fontSize: 10, fontWeight: 700, color: c.isCurrent ? '#a78bfa' : 'var(--text-2)', letterSpacing: 0.8,
                     position: 'relative',
-                    padding: '0 4px'
+                    padding: '0 2px'
                   }}>
                     <div style={{ textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {c.label} {c.isCurrent && viewMode !== 'days' && <span style={{ marginLeft: 2 }}>(NOW )</span>}

@@ -59,3 +59,24 @@ exports.changePassword = async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ message: 'Password updated successfully' });
 };
+
+exports.promoteToAdmin = async (req, res) => {
+  if (req.params.id === req.user.id)
+    return res.status(400).json({ error: 'Cannot change your own role' });
+
+  const { data, error } = await supabase
+    .from('users').update({ role: 'admin' }).eq('id', req.params.id)
+    .select('id, name, email, role, avatar_color, avatar_url').single();
+  if (error) return res.status(404).json({ error: 'User not found' });
+  res.json({ user: data, message: 'User promoted to admin' });
+};
+
+exports.deleteUser = async (req, res) => {
+  if (req.params.id === req.user.id)
+    return res.status(400).json({ error: 'Cannot delete your own account' });
+
+  const { error } = await supabase
+    .from('users').delete().eq('id', req.params.id);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ message: 'User deleted successfully' });
+};

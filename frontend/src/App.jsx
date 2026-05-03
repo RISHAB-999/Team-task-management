@@ -12,7 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Projects  from './pages/Projects';
 import Tasks     from './pages/Tasks';
 import MyTasks   from './pages/MyTasks';
-import Team      from './pages/Team';
+import Admin     from './pages/Admin';
 import Teams     from './pages/Teams';
 import Search    from './pages/Search';
 import Profile   from './pages/Profile';
@@ -32,7 +32,7 @@ function AppShell() {
     '/timeline': 'Timeline', 
     '/my-tasks': 'My Tasks', 
     '/teams': 'Teams', 
-    '/team': 'Admin', 
+    '/admin': 'Admin', 
     '/search': 'Search', 
     '/settings': 'Settings' 
   };
@@ -53,7 +53,7 @@ function AppShell() {
           <Route path="/teams"         element={<Teams      toast={toast} />} />
           <Route path="/search"        element={<Search />} />
           <Route path="/settings"      element={<Profile    toast={toast} />} />
-          <Route path="/team"          element={<ProtectedRoute adminOnly><Team toast={toast} /></ProtectedRoute>} />
+          <Route path="/admin"         element={<ProtectedRoute adminOnly><Admin toast={toast} /></ProtectedRoute>} />
           <Route path="*"              element={<Navigate to="/" replace />} />
         </Routes>
       </div>
