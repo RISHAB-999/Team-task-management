@@ -93,10 +93,6 @@ export default function Login() {
             </button>
           </form>
         )}
-
-        <p style={{ textAlign:'center', fontSize:12, color:'var(--text-2)', marginTop:20 }}>
-          💡 First user to sign up automatically becomes Admin
-        </p>
       </div>
     </div>
   );

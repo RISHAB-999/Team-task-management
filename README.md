@@ -12,31 +12,53 @@ Built during my internship, this project demonstrates a modern approach to colla
 *   **Pixel-Perfect Alignment:** Custom flex-grid architecture ensuring 100% vertical and horizontal synchronization across task rows.
 *   **Multi-View Modes:** Dynamic switching between **Days, Weeks, and Months** with optimized scaling.
 *   **Glassmorphic Visuals:** Translucent task bars with status-based color coding (Done, In Progress, Overdue, Planned).
-*   **Real-time Indicators:** A glowing vertical "NOW" line for immediate temporal orientation.
+*   **Real-time Indicators:** A glowing vertical purple "NOW" line marking today's date from top to bottom.
+*   **Colored Phase Indicators:** 6-color rotating scheme for visual distinction between project phases.
 
-### 📊 Tactical Dashboard
+### 📊 Personalized Dashboard
+*   **Personalized Greeting:** Dynamic "Welcome {username}" message based on logged-in user.
 *   **Live Metrics:** Real-time overview of active, upcoming, and overdue tasks.
-*   **Streamlined Navigation:** Context-aware sidebar with "Deep Space" dark mode styling and premium micro-animations.
+*   **Streamlined Navigation:** Context-aware sidebar with "Deep Space" dark mode styling.
 
 ### 👥 Team & Project Management
-*   **Administrative Control:** Full-featured modals for team creation and project assignment.
-*   **Member Management:** Bulk member addition with custom avatars and role-based access checks.
-*   **Advanced Filtering:** Multi-criteria task filtering by status and assignee.
+*   **Administrative Control:** 
+  - Create teams with member management
+  - Create projects with multi-team assignment
+  - Manage team members (add, remove, search)
+  - Promote members to admin role
+  - Delete member accounts with cascade deletion
+  - Delete teams with confirmation modal
+  - Delete projects with confirmation modal
+*   **Advanced Filtering:** Filter by status, assignee, and project context.
+*   **Member Search:** Quick search for current team members by name or email.
+
+### 👤 Admin Dashboard
+*   **Full User Management:** View all team members with comprehensive details.
+*   **Member Actions:**
+  - Promote members to admin
+  - Delete member accounts (with permanent data removal)
+  - Search members by name or email
+  - View join date and role
+*   **Cascade Deletion:** Automatically removes member from all teams, projects, and unassigns tasks.
 
 ### 🔍 Search & Discovery
 *   **Unified Search:** Cross-project task and team search functionality.
 *   **Smart Filtering:** Find tasks by status, assignee, and project context.
 
 ### 📅 Multiple View Modes
-*   **Dashboard:** Overview of active projects and tasks.
+*   **Dashboard:** Personalized overview with welcome message.
+*   **Projects:** Grid view with color indicators and progress tracking.
 *   **Calendar View:** Visual task scheduling with date navigation.
-*   **Timeline View:** Project roadmap with dependency tracking.
+*   **Timeline View:** Project roadmap with Gantt chart and "NOW" indicator.
 *   **My Tasks:** Personalized task list for assigned items.
+*   **Admin Panel:** User management and member administration.
 
 ### 🔐 Security & Access Control
 *   **JWT Authentication:** Secure token-based authentication.
-*   **Role-Based Access Control:** Differentiated permissions for team members and admins.
+*   **Role-Based Access Control:** Differentiated permissions for members and admins.
+*   **Admin-Only Operations:** Delete, promote, and manage members.
 *   **Password Hashing:** Bcrypt-secured password storage.
+*   **Cascade Deletion:** Safe data removal with automatic cleanup of related records.
 
 ---
 
@@ -114,7 +136,7 @@ Team Task Manager/
 │   │   │   ├── Projects.jsx
 │   │   │   ├── Tasks.jsx
 │   │   │   ├── MyTasks.jsx
-│   │   │   ├── Team.jsx
+│   │   │   ├── Admin.jsx          # Admin dashboard for user management
 │   │   │   ├── Teams.jsx
 │   │   │   ├── Search.jsx
 │   │   │   ├── Profile.jsx
@@ -219,30 +241,37 @@ The application will be available at `http://localhost:5173`
 *   `POST /api/v1/auth/logout` - User logout
 
 ### User Endpoints
-*   `GET /api/v1/users/profile` - Get current user profile
-*   `PUT /api/v1/users/profile` - Update user profile
-*   `GET /api/v1/users/:id` - Get user by ID
+*   `GET /api/v1/users` - List all users (admin only)
+*   `PUT /api/v1/users/:id/role` - Update user role (admin only)
+*   `PUT /api/v1/users/:id/promote` - Promote user to admin (admin only)
+*   `DELETE /api/v1/users/:id` - Delete user account with cascade deletion (admin only)
+*   `PUT /api/v1/users/me/profile` - Update current user profile
+*   `PUT /api/v1/users/me/password` - Change password
 
 ### Project Endpoints
 *   `GET /api/v1/projects` - List all projects
-*   `POST /api/v1/projects` - Create new project
+*   `POST /api/v1/projects` - Create new project (with multi-team assignment)
 *   `GET /api/v1/projects/:id` - Get project details
 *   `PUT /api/v1/projects/:id` - Update project
-*   `DELETE /api/v1/projects/:id` - Delete project
+*   `DELETE /api/v1/projects/:id` - Delete project (admin or project admin only, with cascade deletion)
+*   `POST /api/v1/projects/:id/members` - Add member to project
+*   `DELETE /api/v1/projects/:id/members/:userId` - Remove member from project
 
 ### Task Endpoints
 *   `GET /api/v1/tasks` - List all tasks
+*   `GET /api/v1/tasks/timeline` - Get tasks for timeline view
 *   `POST /api/v1/tasks` - Create new task
 *   `GET /api/v1/tasks/:id` - Get task details
 *   `PUT /api/v1/tasks/:id` - Update task
 *   `DELETE /api/v1/tasks/:id` - Delete task
 
 ### Team Endpoints
-*   `GET /api/v1/teams` - List all teams
+*   `GET /api/v1/teams` - List all teams with member counts
 *   `POST /api/v1/teams` - Create new team
-*   `GET /api/v1/teams/:id` - Get team details
-*   `POST /api/v1/teams/:id/members` - Add team member
-*   `DELETE /api/v1/teams/:id/members/:memberId` - Remove team member
+*   `GET /api/v1/teams/:id` - Get team details with members
+*   `DELETE /api/v1/teams/:id` - Delete team (admin only, with cascade deletion)
+*   `POST /api/v1/teams/:id/members` - Add member to team
+*   `DELETE /api/v1/teams/:id/members/:userId` - Remove member from team
 
 ### Search Endpoints
 *   `GET /api/v1/search` - Unified search across tasks and teams
@@ -277,13 +306,45 @@ The application uses a custom "Deep Space" theme with:
 
 ---
 
+## �️ Admin Features
+
+### User Management Dashboard
+Accessible at `/admin` for admin users. Features include:
+
+- **Member List View:** Comprehensive table of all registered members
+- **User Search:** Quick search by name or email
+- **Role Management:** 
+  - View current role (admin/member)
+  - Promote members to admin status
+- **Account Deletion:** 
+  - Delete member accounts with confirmation
+  - Automatic cascade deletion of all related data:
+    - Remove from all teams
+    - Remove from all projects
+    - Unassign from all tasks
+- **Audit Information:** Join date and role visibility
+
+### Team Management
+- **Delete Teams:** Admin-only team deletion with cascade cleanup
+- **Manage Members:** Add/remove team members with search functionality
+- **Member Search:** Find current members within team management modal
+
+### Project Management
+- **Multi-Team Assignment:** Assign projects to multiple teams
+- **Project Deletion:** Admin and project admin can delete with confirmation
+- **Cascade Cleanup:** Automatic removal of all related data
+
+---
+
 ## 🔐 Security Features
 
 *   **JWT Authentication:** Token-based secure authentication
 *   **Password Hashing:** Bcrypt with salt rounds for password security
 *   **CORS Protection:** Configured for secure cross-origin requests
-*   **Role-Based Access Control (RBAC):** Different permission levels for different user roles
+*   **Role-Based Access Control (RBAC):** Different permission levels (admin/member)
 *   **Supabase RLS:** Row-Level Security policies for database access control
+*   **Cascade Deletion:** Safe data removal with automatic cleanup
+*   **Admin-Only Operations:** Sensitive operations require admin role
 *   **Environment Variables:** Sensitive data stored in `.env` files (not committed)
 
 ---
